@@ -8,6 +8,10 @@
 extern emacs_value em_nil, em_t;
 extern emacs_value em_symbolp;
 
+extern emacs_value em_unknown_language;
+
+extern emacs_value em_json;
+
 /**
  * Initialize the libyeast-emacs interface.
  * This function should only be called once.
@@ -54,5 +58,13 @@ void em_defun(emacs_env *env, const char *name, emacs_value func);
  * @param name Symbol name of the feature to provide.
  */
 void em_provide(emacs_env *env, const char *feature);
+
+/**
+ * Check if a value is a user pointer.
+ * @param env The active Emacs environment.
+ * @param val Value to check.
+ * @return True iff val is a user pointer.
+ */
+bool em_user_ptrp(emacs_env *env, emacs_value val);
 
 #endif /* INTERFACE_H */

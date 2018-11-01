@@ -56,6 +56,7 @@ endif(APPLE)
 # endif(CMAKE_COMPILER_IS_GNUCC)
 
 target_link_libraries(yeast runtime)
+target_include_directories(yeast SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/external/uthash")
 
 add_custom_command(
   TARGET yeast POST_BUILD

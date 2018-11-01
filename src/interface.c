@@ -13,8 +13,14 @@
 emacs_value em_nil, em_t;
 emacs_value em_symbolp;
 
+// Error symbols
+emacs_value em_unknown_language;
+
+// Supported languages
+emacs_value em_json;
+
 // Symbols that are only reachable from within this file.
-static emacs_value _cons, _defalias, _provide, _wrong_type_argument;
+static emacs_value _cons, _defalias, _provide, _user_ptrp, _wrong_type_argument;
 
 void em_init(emacs_env *env)
 {
@@ -23,9 +29,14 @@ void em_init(emacs_env *env)
 
     em_symbolp = GLOBREF(INTERN("symbolp"));
 
+    em_unknown_language = GLOBREF(INTERN("unknown-language"));
+
+    em_json = GLOBREF(INTERN("json"));
+
     _cons = GLOBREF(INTERN("cons"));
     _defalias = GLOBREF(INTERN("defalias"));
     _provide = GLOBREF(INTERN("provide"));
+    _user_ptrp = GLOBREF(INTERN("user-ptrp"));
     _wrong_type_argument = GLOBREF(INTERN("wrong-type-argument"));
 }
 
@@ -78,4 +89,9 @@ void em_defun(emacs_env *env, const char *name, emacs_value func)
 void em_provide(emacs_env *env, const char *feature)
 {
     em_funcall(env, _provide, 1, INTERN(feature));
+}
+
+bool em_user_ptrp(emacs_env *env, emacs_value val)
+{
+    return env->is_not_nil(env, em_funcall(env, _user_ptrp, 1, val));
 }
