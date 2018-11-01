@@ -6,12 +6,39 @@
 #define INTERFACE_H
 
 extern emacs_value em_nil, em_t;
+extern emacs_value em_symbolp;
 
 /**
  * Initialize the libyeast-emacs interface.
  * This function should only be called once.
  */
 void em_init(emacs_env *env);
+
+/**
+ * Signal a wrong-type-argument error if PREDICATE does not apply to ARG.
+ * @param env The active Emacs environment.
+ * @param predicate The predicate.
+ * @param arg The argument.
+ * @return True iff an error was signaled.
+ */
+bool em_assert_type(emacs_env *env, emacs_value predicate, emacs_value arg);
+
+/**
+ * Signal a wrong-type-argument error.
+ * @param env The active Emacs environment.
+ * @param expected Symbol describing the expected type.
+ * @param actual Emacs value that does not have the expected type.
+ */
+void em_signal_wrong_type(emacs_env *env, emacs_value expected, emacs_value actual);
+
+/**
+ * Call (cons car cdr) in Emacs.
+ * @param env The active Emacs environment.
+ * @param car The car.
+ * @param cdr The cdr.
+ * @return The cons cell.
+ */
+emacs_value em_cons(emacs_env *env, emacs_value car, emacs_value cdr);
 
 /**
  * Define a function in Emacs, using defalias.

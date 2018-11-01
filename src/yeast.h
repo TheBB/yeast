@@ -22,6 +22,12 @@
     emacs_value yeast_##name(emacs_env *env, __VA_ARGS__)       \
 
 /**
+ * Assert that VAL is a symbol, signal an error and return otherwise.
+ */
+#define YEAST_ASSERT_SYMBOL(val)                                        \
+    do { if (!em_assert_type(env, em_symbolp, (val))) return em_nil; } while (0)
+
+/**
  * Define functions visible to Emacs.
  * This function only needs to be called once.
  * @param env The active Emacs environment.

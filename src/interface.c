@@ -11,17 +11,22 @@
 // We store some global references to emacs objects, mostly symbols,
 // so that we don't have to waste time calling intern later on.
 emacs_value em_nil, em_t;
+emacs_value em_symbolp;
 
 // Symbols that are only reachable from within this file.
-static emacs_value _defalias, _provide;
+static emacs_value _cons, _defalias, _provide, _wrong_type_argument;
 
 void em_init(emacs_env *env)
 {
     em_nil = GLOBREF(INTERN("nil"));
     em_t = GLOBREF(INTERN("t"));
 
+    em_symbolp = GLOBREF(INTERN("symbolp"));
+
+    _cons = GLOBREF(INTERN("cons"));
     _defalias = GLOBREF(INTERN("defalias"));
     _provide = GLOBREF(INTERN("provide"));
+    _wrong_type_argument = GLOBREF(INTERN("wrong-type-argument"));
 }
 
 /**
@@ -42,6 +47,27 @@ static emacs_value em_funcall(emacs_env *env, emacs_value func, ptrdiff_t nargs,
     va_end(vargs);
 
     return env->funcall(env, func, nargs, args);
+}
+
+bool em_assert_type(emacs_env *env, emacs_value predicate, emacs_value arg)
+{
+    bool cond = env->is_not_nil(env, em_funcall(env, predicate, 1, arg));
+    if (!cond)
+        em_signal_wrong_type(env, predicate, arg);
+    return cond;
+}
+
+void em_signal_wrong_type(emacs_env *env, emacs_value expected, emacs_value actual)
+{
+    env->non_local_exit_signal(
+        env, _wrong_type_argument,
+        em_cons(env, expected, em_cons(env, actual, em_nil))
+    );
+}
+
+emacs_value em_cons(emacs_env *env, emacs_value car, emacs_value cdr)
+{
+    return em_funcall(env, _cons, 2, car, cdr);
 }
 
 void em_defun(emacs_env *env, const char *name, emacs_value func)
