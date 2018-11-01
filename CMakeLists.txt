@@ -40,6 +40,8 @@ set_target_properties(
 file(GLOB YEAST_SRCS src/*.c)
 set(YEAST_PARSERS
   "${CMAKE_CURRENT_SOURCE_DIR}/external/json/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/python/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/python/src/scanner.cc"
   )
 
 add_library(yeast SHARED ${YEAST_SRCS} ${YEAST_PARSERS})
@@ -58,7 +60,7 @@ endif(APPLE)
 target_link_libraries(yeast runtime)
 target_include_directories(yeast SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/external/uthash")
 
-add_custom_command(
-  TARGET yeast POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:yeast> ${CMAKE_CURRENT_SOURCE_DIR}
-  )
+# add_custom_command(
+#   TARGET yeast POST_BUILD
+#   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:yeast> ${CMAKE_CURRENT_SOURCE_DIR}
+#   )

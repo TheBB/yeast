@@ -5,6 +5,7 @@
 #include "yeast-instance.h"
 
 TSLanguage *tree_sitter_json();
+TSLanguage *tree_sitter_python();
 
 YEAST_DOC(make_instance, "LANGUAGE", "Make a new yeast instance for the given LANGUAGE.");
 emacs_value yeast_make_instance(emacs_env *env, emacs_value language)
@@ -14,6 +15,8 @@ emacs_value yeast_make_instance(emacs_env *env, emacs_value language)
 
     if (env->eq(env, language, em_json))
         ts_parser_set_language(parser, tree_sitter_json());
+    else if (env->eq(env, language, em_python))
+        ts_parser_set_language(parser, tree_sitter_python());
     else {
         ts_parser_delete(parser);
         env->non_local_exit_signal(env, em_unknown_language, em_cons(env, language, em_nil));

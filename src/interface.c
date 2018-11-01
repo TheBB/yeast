@@ -17,7 +17,7 @@ emacs_value em_symbolp;
 emacs_value em_unknown_language;
 
 // Supported languages
-emacs_value em_json;
+emacs_value em_json, em_python;
 
 // Symbols that are only reachable from within this file.
 static emacs_value _cons, _defalias, _provide, _user_ptrp, _wrong_type_argument;
@@ -32,6 +32,7 @@ void em_init(emacs_env *env)
     em_unknown_language = GLOBREF(INTERN("unknown-language"));
 
     em_json = GLOBREF(INTERN("json"));
+    em_python = GLOBREF(INTERN("python"));
 
     _cons = GLOBREF(INTERN("cons"));
     _defalias = GLOBREF(INTERN("defalias"));

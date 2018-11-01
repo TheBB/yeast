@@ -2,3 +2,4 @@
 /build
 /libyeast.so
 /compile_commands.json
+*-autoloads.el

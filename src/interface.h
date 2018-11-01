@@ -10,7 +10,7 @@ extern emacs_value em_symbolp;
 
 extern emacs_value em_unknown_language;
 
-extern emacs_value em_json;
+extern emacs_value em_json, em_python;
 
 /**
  * Initialize the libyeast-emacs interface.
