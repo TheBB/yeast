@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+cd external/tree-sitter
+sed -i 's/exec python /exec python2 /' externals/gyp/gyp
+script/configure
+CFLAGS=-fPIC CXXFLAGS=-fPIC make
