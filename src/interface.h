@@ -14,6 +14,14 @@ extern emacs_value em_nil, em_t;
 void em_init(emacs_env *env);
 
 /**
+ * Define a function in Emacs, using defalias.
+ * @param env The active Emacs environment.
+ * @param name Symbol name of the desired function.
+ * @param func Function to bind.
+ */
+void em_defun(emacs_env *env, const char *name, emacs_value func);
+
+/**
  * Provide a feature to Emacs.
  * @param env The active Emacs environment.
  * @param name Symbol name of the feature to provide.
