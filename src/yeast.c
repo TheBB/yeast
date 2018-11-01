@@ -15,6 +15,14 @@ yeast_type yeast_get_type(emacs_env *env, emacs_value _obj)
     return obj->type;
 }
 
+bool yeast_assert_type(emacs_env *env, emacs_value obj, yeast_type type, emacs_value predicate)
+{
+    if (type == yeast_get_type(env, obj))
+        return true;
+    em_signal_wrong_type(env, predicate, obj);
+    return false;
+}
+
 void yeast_finalize(void *_obj)
 {
     yeast_header *header = (yeast_header*) _obj;
@@ -32,6 +40,7 @@ void yeast_finalize(void *_obj)
 }
 
 typedef emacs_value (*func_1)(emacs_env*, emacs_value);
+typedef emacs_value (*func_2)(emacs_env*, emacs_value, emacs_value);
 
 #define GET_SAFE(arglist, nargs, index) ((index) < (nargs) ? (arglist)[(index)] : em_nil)
 
@@ -39,6 +48,12 @@ static emacs_value yeast_dispatch_1(emacs_env *env, ptrdiff_t nargs, emacs_value
 {
     func_1 func = (func_1) data;
     return func(env, GET_SAFE(args, nargs, 0));
+}
+
+static emacs_value yeast_dispatch_2(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data)
+{
+    func_2 func = (func_2) data;
+    return func(env, GET_SAFE(args, nargs, 0), GET_SAFE(args, nargs, 1));
 }
 
 #define DEFUN(ename, cname, min_nargs, max_nargs)                       \
@@ -53,4 +68,6 @@ void yeast_init(emacs_env *env)
 {
     DEFUN("yeast--make-instance", make_instance, 1, 1);
     DEFUN("yeast-instance-p", instance_p, 1, 1);
+
+    DEFUN("yeast--parse-string", parse_string, 2, 2);
 }

@@ -55,7 +55,9 @@
                     (dolist (elt yeast-modes)
                       (when (derived-mode-p (car elt)) (throw 'found (cdr elt)))))))
         (if lang
-            (setq-local yeast--instance (yeast--make-instance lang))
+            (progn
+              (setq-local yeast--instance (yeast--make-instance lang))
+              (yeast--parse-string yeast--instance (buffer-string)))
           (user-error "Yeast does not support this major mode")
           (setq-local yeast-mode nil)))
     (setq-local yeast--instance nil)))

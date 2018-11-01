@@ -11,7 +11,8 @@
 // We store some global references to emacs objects, mostly symbols,
 // so that we don't have to waste time calling intern later on.
 emacs_value em_nil, em_t;
-emacs_value em_symbolp;
+emacs_value em_stringp, em_symbolp;
+emacs_value em_yeast_instance_p;
 
 // Error symbols
 emacs_value em_unknown_language;
@@ -27,7 +28,10 @@ void em_init(emacs_env *env)
     em_nil = GLOBREF(INTERN("nil"));
     em_t = GLOBREF(INTERN("t"));
 
+    em_stringp = GLOBREF(INTERN("stringp"));
     em_symbolp = GLOBREF(INTERN("symbolp"));
+
+    em_yeast_instance_p = GLOBREF(INTERN("yeast-instance-p"));
 
     em_unknown_language = GLOBREF(INTERN("unknown-language"));
 
@@ -75,6 +79,17 @@ void em_signal_wrong_type(emacs_env *env, emacs_value expected, emacs_value actu
         env, _wrong_type_argument,
         em_cons(env, expected, em_cons(env, actual, em_nil))
     );
+}
+
+char *em_get_string(emacs_env *env, emacs_value arg)
+{
+    ptrdiff_t size;
+    env->copy_string_contents(env, arg, NULL, &size);
+
+    char *buf = (char*) malloc(size * sizeof(char));
+    env->copy_string_contents(env, arg, buf, &size);
+
+    return buf;
 }
 
 emacs_value em_cons(emacs_env *env, emacs_value car, emacs_value cdr)

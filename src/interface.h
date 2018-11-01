@@ -6,7 +6,8 @@
 #define INTERFACE_H
 
 extern emacs_value em_nil, em_t;
-extern emacs_value em_symbolp;
+extern emacs_value em_stringp, em_symbolp;
+extern emacs_value em_yeast_instance_p;
 
 extern emacs_value em_unknown_language;
 
@@ -34,6 +35,15 @@ bool em_assert_type(emacs_env *env, emacs_value predicate, emacs_value arg);
  * @param actual Emacs value that does not have the expected type.
  */
 void em_signal_wrong_type(emacs_env *env, emacs_value expected, emacs_value actual);
+
+/**
+ * Return a string from an emacs_value.
+ * Caller is responsible for ensuring that the value is a string, and to free the returned pointer.
+ * @param env The active Emacs environment.
+ * @param arg Emacs value representing a string.
+ * @return The string (owned pointer).
+ */
+char *em_get_string(emacs_env *env, emacs_value arg);
 
 /**
  * Call (cons car cdr) in Emacs.

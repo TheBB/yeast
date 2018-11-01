@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "tree_sitter/runtime.h"
 
 #include "interface.h"
@@ -33,4 +35,18 @@ emacs_value yeast_instance_p(emacs_env *env, emacs_value obj)
 {
     yeast_type type = yeast_get_type(env, obj);
     return type == YEAST_INSTANCE ? em_t : em_nil;
+}
+
+YEAST_DOC(parse_string, "INSTANCE STR", "Parse STR, overriding the existing tree in INSTANCE.");
+emacs_value yeast_parse_string(emacs_env *env, emacs_value _instance, emacs_value _str)
+{
+    YEAST_ASSERT_INSTANCE(_instance);
+    YEAST_ASSERT_STRING(_str);
+
+    yeast_instance *instance = YEAST_EXTRACT_INSTANCE(_instance);
+    char *str = YEAST_EXTRACT_STRING(_str);
+
+    instance->tree = ts_parser_parse_string(instance->parser, instance->tree, str, strlen(str));
+
+    return em_nil;
 }
