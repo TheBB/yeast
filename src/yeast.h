@@ -1,5 +1,5 @@
 #include "emacs-module.h"
-#include "uthash.h"
+#include "tree_sitter/runtime.h"
 
 #ifndef YEAST_H
 #define YEAST_H
@@ -33,18 +33,25 @@
  */
 typedef enum {
     YEAST_UNKNOWN,
-    YEAST_PARSER
+    YEAST_INSTANCE
 } yeast_type;
 
 /**
- * Hashable wrapper structure for a yeast object.
+ * Yeast object header.
  */
 typedef struct {
-    UT_hash_handle hh;          /**< For internal use by the hash table. */
-    yeast_type type;            /**< Type of object stored. */
-    ptrdiff_t refcount;         /**< Reference count. */
-    void *ptr;                  /**< Data pointer. */
-} yeast_object;
+    yeast_type type;
+    int64_t refcount;
+} yeast_header;
+
+/**
+ * Yeast instance: a parser with a canonical tree.
+ */
+typedef struct {
+    yeast_header header;
+    TSParser *parser;
+    TSTree *tree;
+} yeast_instance;
 
 /**
  * Return the yeast object type stored by en Emacs value.
@@ -55,13 +62,10 @@ typedef struct {
 yeast_type yeast_get_type(emacs_env *env, emacs_value _obj);
 
 /**
- * Wrap a structure in an emacs_value.
- * @param env The active Emacs environment.
- * @param obj The type of the object.
- * @param ptr The pointer to store.
- * @return The Emacs value.
+ * Finalize and potentially destroy a yeast object.
+ * @param _obj The object to finalize
  */
-emacs_value yeast_wrap(emacs_env *env, yeast_type type, void* ptr);
+void yeast_finalize(void *_obj);
 
 /**
  * Define functions visible to Emacs.

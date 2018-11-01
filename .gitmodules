@@ -5,3 +5,6 @@
 [submodule "external/json"]
 	path = external/json
 	url = https://github.com/tree-sitter/tree-sitter-json
+[submodule "external/python"]
+	path = external/python
+	url = git@github.com:tree-sitter/tree-sitter-python
