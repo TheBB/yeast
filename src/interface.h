@@ -11,7 +11,8 @@ extern emacs_value em_yeast_instance_p;
 
 extern emacs_value em_unknown_language;
 
-extern emacs_value em_json, em_python;
+extern emacs_value em_bash, em_c, em_cpp, em_css, em_go, em_html, em_javascript,
+    em_json, em_ocaml, em_php, em_python, em_ruby, em_rust, em_typescript;
 
 /**
  * Initialize the libyeast-emacs interface.

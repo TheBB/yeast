@@ -18,11 +18,12 @@ emacs_value em_yeast_instance_p;
 emacs_value em_unknown_language;
 
 // Supported languages
-emacs_value em_json, em_python;
+emacs_value em_bash, em_c, em_cpp, em_css, em_go, em_html, em_javascript,
+    em_json, em_ocaml, em_php, em_python, em_ruby, em_rust, em_typescript;
 
 // Symbols that are only reachable from within this file.
 static emacs_value _buffer_size, _buffer_substring, _cons, _defalias,
-    _point_min, _point_max, _provide, _user_ptrp, _wrong_type_argument;
+    _provide, _user_ptrp, _wrong_type_argument;
 
 void em_init(emacs_env *env)
 {
@@ -36,15 +37,25 @@ void em_init(emacs_env *env)
 
     em_unknown_language = GLOBREF(INTERN("unknown-language"));
 
+    em_bash = GLOBREF(INTERN("bash"));
+    em_c = GLOBREF(INTERN("c"));
+    em_cpp = GLOBREF(INTERN("cpp"));
+    em_css = GLOBREF(INTERN("css"));
+    em_go = GLOBREF(INTERN("go"));
+    em_html = GLOBREF(INTERN("html"));
+    em_javascript = GLOBREF(INTERN("javascript"));
     em_json = GLOBREF(INTERN("json"));
+    em_ocaml = GLOBREF(INTERN("ocaml"));
+    em_php = GLOBREF(INTERN("php"));
     em_python = GLOBREF(INTERN("python"));
+    em_ruby = GLOBREF(INTERN("ruby"));
+    em_rust = GLOBREF(INTERN("rust"));
+    em_typescript = GLOBREF(INTERN("typescript"));
 
     _buffer_size = GLOBREF(INTERN("buffer-size"));
     _buffer_substring = GLOBREF(INTERN("buffer-substring"));
     _cons = GLOBREF(INTERN("cons"));
     _defalias = GLOBREF(INTERN("defalias"));
-    _point_min = GLOBREF(INTERN("point-min"));
-    _point_max = GLOBREF(INTERN("point-max"));
     _provide = GLOBREF(INTERN("provide"));
     _user_ptrp = GLOBREF(INTERN("user-ptrp"));
     _wrong_type_argument = GLOBREF(INTERN("wrong-type-argument"));

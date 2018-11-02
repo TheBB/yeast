@@ -39,9 +39,31 @@ set_target_properties(
 
 file(GLOB YEAST_SRCS src/*.c)
 set(YEAST_PARSERS
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/bash/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/bash/src/scanner.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/c/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/cpp/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/cpp/src/scanner.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/css/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/css/src/scanner.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/go/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/html/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/html/src/scanner.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/javascript/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/javascript/src/scanner.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/external/json/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/ocaml/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/ocaml/src/scanner.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/php/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/php/src/scanner.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/external/python/src/parser.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/external/python/src/scanner.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/ruby/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/ruby/src/scanner.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/rust/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/rust/src/scanner.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/typescript/src/parser.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/typescript/src/scanner.c"
   )
 
 add_library(yeast SHARED ${YEAST_SRCS} ${YEAST_PARSERS})
