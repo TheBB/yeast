@@ -124,11 +124,11 @@ emacs_value yeast_parse(emacs_env *env, emacs_value _instance)
     TSTree *new_tree = ts_parser_parse(instance->parser, instance->tree, input);
 
     emacs_value retval = payload->success ? em_t : em_nil;
-    if (payload->success) {
-        ts_tree_delete(instance->tree);
-        instance->tree = new_tree;
-    }
-
     free(payload);
+
+    if (instance->tree)
+        ts_tree_delete(instance->tree);
+    instance->tree = new_tree;
+
     return retval;
 }
