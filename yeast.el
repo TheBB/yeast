@@ -55,6 +55,20 @@
         (yeast--parse yeast--instance)
       (set-buffer-multibyte multibyte))))
 
+(defun yeast-root-node ()
+  "Get the current root node."
+  (yeast--tree-root (yeast--instance-tree yeast--instance)))
+
+(defun yeast-ast-sexp (&optional node anon)
+  "Convert NODE to an s-expression.
+If NODE is nil, use the current root node.
+If ANON is nil, only use the named nodes."
+  (let* ((node (or node (yeast-root-node)))
+         (nchildren (yeast--node-child-count node anon))
+         (children (cl-loop for i below nchildren collect (yeast--node-child node i anon))))
+    `(,(yeast--node-type node)
+      ,@(mapcar (lambda (node) (yeast-ast-sexp node anon)) children))))
+
 ;;;###autoload
 (define-minor-mode yeast-mode
   "Structural editing support."
