@@ -6,6 +6,6 @@
 YEAST_DEFUN(make_instance, emacs_value language);
 YEAST_DEFUN(instance_p, emacs_value obj);
 
-YEAST_DEFUN(parse_string, emacs_value _instance, emacs_value _str);
+YEAST_DEFUN(parse, emacs_value _instance);
 
 #endif /* PARSER_H */

@@ -21,7 +21,8 @@ emacs_value em_unknown_language;
 emacs_value em_json, em_python;
 
 // Symbols that are only reachable from within this file.
-static emacs_value _cons, _defalias, _provide, _user_ptrp, _wrong_type_argument;
+static emacs_value _buffer_size, _buffer_substring, _cons, _defalias,
+    _point_min, _point_max, _provide, _user_ptrp, _wrong_type_argument;
 
 void em_init(emacs_env *env)
 {
@@ -38,8 +39,12 @@ void em_init(emacs_env *env)
     em_json = GLOBREF(INTERN("json"));
     em_python = GLOBREF(INTERN("python"));
 
+    _buffer_size = GLOBREF(INTERN("buffer-size"));
+    _buffer_substring = GLOBREF(INTERN("buffer-substring"));
     _cons = GLOBREF(INTERN("cons"));
     _defalias = GLOBREF(INTERN("defalias"));
+    _point_min = GLOBREF(INTERN("point-min"));
+    _point_max = GLOBREF(INTERN("point-max"));
     _provide = GLOBREF(INTERN("provide"));
     _user_ptrp = GLOBREF(INTERN("user-ptrp"));
     _wrong_type_argument = GLOBREF(INTERN("wrong-type-argument"));
@@ -100,6 +105,30 @@ emacs_value em_cons(emacs_env *env, emacs_value car, emacs_value cdr)
 void em_defun(emacs_env *env, const char *name, emacs_value func)
 {
     em_funcall(env, _defalias, 2, INTERN(name), func);
+}
+
+uint32_t em_buffer_size(emacs_env *env)
+{
+    return env->extract_integer(env, em_funcall(env, _buffer_size, 0));
+}
+
+bool em_buffer_contents(emacs_env *env, uint32_t offset, uint32_t nchars, char *buffer)
+{
+    emacs_value string = em_funcall(
+        env, _buffer_substring, 2,
+        env->make_integer(env, offset + 1),
+        env->make_integer(env, offset + nchars + 1)
+    );
+
+    // Check that we got what we asked for
+    ptrdiff_t nbytes;
+    env->copy_string_contents(env, string, NULL, &nbytes);
+
+    if (nbytes - 1 != nchars)
+        return false;
+
+    env->copy_string_contents(env, string, buffer, &nbytes);
+    return true;
 }
 
 void em_provide(emacs_env *env, const char *feature)

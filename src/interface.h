@@ -63,6 +63,24 @@ emacs_value em_cons(emacs_env *env, emacs_value car, emacs_value cdr);
 void em_defun(emacs_env *env, const char *name, emacs_value func);
 
 /**
+ * Call (buffer-size) in Emacs.
+ */
+uint32_t em_buffer_size(emacs_env *env);
+
+/**
+ * Copy Emacs buffer contents to a buffer.
+ * Caller is responsible that the Emacs buffer contains as many characters as asked for,
+ * and that the buffer can hold that many.
+ * Note: the Emacs buffer should probably be in unibyte mode!
+ * @param env The active Emacs environment.
+ * @param offset The starting offset to read from.
+ * @param nchars The number of characters to read.
+ * @param buffer The buffer to write into.
+ * @return True if ok, false if not ok.
+ */
+bool em_buffer_contents(emacs_env *env, uint32_t offset, uint32_t nchars, char *buffer);
+
+/**
  * Provide a feature to Emacs.
  * @param env The active Emacs environment.
  * @param name Symbol name of the feature to provide.

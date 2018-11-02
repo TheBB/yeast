@@ -69,5 +69,5 @@ void yeast_init(emacs_env *env)
     DEFUN("yeast--make-instance", make_instance, 1, 1);
     DEFUN("yeast-instance-p", instance_p, 1, 1);
 
-    DEFUN("yeast--parse-string", parse_string, 2, 2);
+    DEFUN("yeast--parse", parse, 1, 1);
 }

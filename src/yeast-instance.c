@@ -1,10 +1,13 @@
 #include <string.h>
+#include <stdio.h>
 
 #include "tree_sitter/runtime.h"
 
 #include "interface.h"
 #include "yeast.h"
 #include "yeast-instance.h"
+
+#define BUFSIZE 4092
 
 TSLanguage *tree_sitter_json();
 TSLanguage *tree_sitter_python();
@@ -37,16 +40,59 @@ emacs_value yeast_instance_p(emacs_env *env, emacs_value obj)
     return type == YEAST_INSTANCE ? em_t : em_nil;
 }
 
-YEAST_DOC(parse_string, "INSTANCE STR", "Parse STR, overriding the existing tree in INSTANCE.");
-emacs_value yeast_parse_string(emacs_env *env, emacs_value _instance, emacs_value _str)
+typedef struct {
+    emacs_env *env;
+    uint32_t size;
+    bool success;
+    char buffer[BUFSIZE + 1];
+} read_payload;
+
+static const char *read(void *_payload, uint32_t offset, TSPoint position, uint32_t *bytes_read)
+{
+    read_payload *payload = (read_payload*)_payload;
+    printf("Offset %d, buffer size %d\n", offset, payload->size);
+
+    // Calculate how many bytes to read
+    *bytes_read = payload->size - offset;
+    if (*bytes_read > BUFSIZE)
+        *bytes_read = BUFSIZE;
+    if (*bytes_read <= 0) {
+        *bytes_read = 0;
+        return "";
+    }
+
+    bool retval = em_buffer_contents(payload->env, offset, *bytes_read, &payload->buffer[0]);
+    if (!retval) {
+        *bytes_read = 0;
+        payload->success = false;
+        return "";
+    }
+
+    return &payload->buffer[0];
+}
+
+YEAST_DOC(parse, "INSTANCE",
+          "Parse the current buffer, overriding the current tree in INSTANCE.\n\n"
+          "Return non-nil if successful.");
+emacs_value yeast_parse(emacs_env *env, emacs_value _instance)
 {
     YEAST_ASSERT_INSTANCE(_instance);
-    YEAST_ASSERT_STRING(_str);
-
     yeast_instance *instance = YEAST_EXTRACT_INSTANCE(_instance);
-    char *str = YEAST_EXTRACT_STRING(_str);
 
-    instance->tree = ts_parser_parse_string(instance->parser, instance->tree, str, strlen(str));
+    read_payload *payload = malloc(sizeof(read_payload));
+    payload->env = env;
+    payload->size = em_buffer_size(env);
+    payload->success = true;
 
-    return em_nil;
+    TSInput input = {payload, read, TSInputEncodingUTF8};
+    TSTree *new_tree = ts_parser_parse(instance->parser, instance->tree, input);
+
+    emacs_value retval = payload->success ? em_t : em_nil;
+    if (payload->success) {
+        ts_tree_delete(instance->tree);
+        instance->tree = new_tree;
+    }
+
+    free(payload);
+    return retval;
 }

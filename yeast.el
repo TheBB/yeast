@@ -46,6 +46,15 @@
   '((python-mode . python))
   "Alist of major modes and yeast language identifiers")
 
+(defun yeast-parse ()
+  "Parse the buffer from scratch."
+  (let ((inhibit-redisplay t)
+        (multibyte enable-multibyte-characters))
+    (set-buffer-multibyte nil)
+    (unwind-protect
+        (yeast--parse yeast--instance)
+      (set-buffer-multibyte multibyte))))
+
 ;;;###autoload
 (define-minor-mode yeast-mode
   "Structural editing support."
@@ -57,7 +66,7 @@
         (if lang
             (progn
               (setq-local yeast--instance (yeast--make-instance lang))
-              (yeast--parse-string yeast--instance (buffer-string)))
+              (yeast-parse))
           (user-error "Yeast does not support this major mode")
           (setq-local yeast-mode nil)))
     (setq-local yeast--instance nil)))
