@@ -105,3 +105,31 @@ emacs_value yeast_node_child(emacs_env *env, emacs_value _node, emacs_value _ind
     TSNode child = anon ? ts_node_child(node->node, index) : ts_node_named_child(node->node, index);
     return new_node_from_node(env, node, child);
 }
+
+YEAST_DOC(node_start_byte, "NODE", "Get the starting byte of NODE.");
+emacs_value yeast_node_start_byte(emacs_env *env, emacs_value _node)
+{
+    YEAST_ASSERT_NODE(_node);
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+    return env->make_integer(env, ts_node_start_byte(node->node));
+}
+
+YEAST_DOC(node_end_byte, "NODE", "Get the ending byte of NODE.");
+emacs_value yeast_node_end_byte(emacs_env *env, emacs_value _node)
+{
+    YEAST_ASSERT_NODE(_node);
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+    return env->make_integer(env, ts_node_end_byte(node->node));
+}
+
+YEAST_DOC(node_byte_range, "NODE", "Get the byte range of NODE as a cons cell.");
+emacs_value yeast_node_byte_range(emacs_env *env, emacs_value _node)
+{
+    YEAST_ASSERT_NODE(_node);
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+    return em_cons(
+        env,
+        env->make_integer(env, ts_node_start_byte(node->node)),
+        env->make_integer(env, ts_node_end_byte(node->node))
+    );
+}

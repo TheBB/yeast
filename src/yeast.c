@@ -102,4 +102,7 @@ void yeast_init(emacs_env *env)
     DEFUN("yeast--node-type", node_type, 1, 1);
     DEFUN("yeast--node-child-count", node_child_count, 1, 2);
     DEFUN("yeast--node-child", node_child, 2, 3);
+    DEFUN("yeast--node-start-byte", node_start_byte, 1, 1);
+    DEFUN("yeast--node-end-byte", node_end_byte, 1, 1);
+    DEFUN("yeast--node-byte-range", node_byte_range, 1, 1);
 }
