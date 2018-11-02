@@ -78,30 +78,30 @@ emacs_value yeast_node_type(emacs_env *env, emacs_value _node)
     return env->intern(env, type);
 }
 
-YEAST_DOC(node_child_count, "NODE &optional NAMED",
+YEAST_DOC(node_child_count, "NODE &optional ANON",
           "Get the number of children of NODE.\n\n"
-          "If NAMED is non-nil, count only the named children.");
-emacs_value yeast_node_child_count(emacs_env *env, emacs_value _node, emacs_value _named)
+          "If ANON is non-nil, count only the named children.");
+emacs_value yeast_node_child_count(emacs_env *env, emacs_value _node, emacs_value _anon)
 {
     YEAST_ASSERT_NODE(_node);
     yeast_node *node = YEAST_EXTRACT_NODE(_node);
-    bool named = YEAST_EXTRACT_BOOLEAN(_named);
-    uint32_t retval = named ? ts_node_named_child_count(node->node) : ts_node_child_count(node->node);
+    bool anon = YEAST_EXTRACT_BOOLEAN(_anon);
+    uint32_t retval = anon ? ts_node_child_count(node->node) : ts_node_named_child_count(node->node);
     return env->make_integer(env, retval);
 }
 
-YEAST_DOC(node_child, "NODE INDEX &optional NAMED",
+YEAST_DOC(node_child, "NODE INDEX &optional ANON",
           "Get the child at INDEX below NODE.\n\n"
-          "If NAMED is non-nil, count only the named children.");
-emacs_value yeast_node_child(emacs_env *env, emacs_value _node, emacs_value _index, emacs_value _named)
+          "If ANON is nil, count only the named children.");
+emacs_value yeast_node_child(emacs_env *env, emacs_value _node, emacs_value _index, emacs_value _anon)
 {
     YEAST_ASSERT_NODE(_node);
     YEAST_ASSERT_INTEGER(_index);
 
     yeast_node *node = YEAST_EXTRACT_NODE(_node);
     uint32_t index = YEAST_EXTRACT_INTEGER(_index);
-    bool named = YEAST_EXTRACT_BOOLEAN(_named);
+    bool anon = YEAST_EXTRACT_BOOLEAN(_anon);
 
-    TSNode child = named ? ts_node_named_child(node->node, index) : ts_node_child(node->node, index);
+    TSNode child = anon ? ts_node_child(node->node, index) : ts_node_named_child(node->node, index);
     return new_node_from_node(env, node, child);
 }
