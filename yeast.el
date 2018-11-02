@@ -42,9 +42,28 @@
 (defvar-local yeast--instance nil
   "The yeast instance of the current buffer.")
 
-(defvar yeast-modes
-  '((python-mode . python))
-  "Alist of major modes and yeast language identifiers")
+(defun yeast-detect-language ()
+  "Detect a supported language in the current buffer."
+  (cond
+   ((and (derived-mode-p 'sh-mode)
+         (string= sh-shell "bash"))
+    'bash)
+   ((derived-mode-p 'c-mode) 'c)
+   ((derived-mode-p 'c++-mode) 'cpp)
+   ((derived-mode-p 'css-mode) 'css)
+   ((derived-mode-p 'go-mode) 'go)
+   ((or (derived-mode-p 'html-mode)
+        (and (derived-mode-p 'web-mode)
+             (string= web-mode-engine "none")))
+    'html)
+   ((derived-mode-p 'json-mode) 'json)
+   ((derived-mode-p 'javascript-mode 'js-mode 'js2-mode 'js3-mode) 'javascript)
+   ((derived-mode-p 'tuareg-mode) 'ocaml)
+   ((derived-mode-p 'php-mode) 'php)
+   ((derived-mode-p 'python-mode) 'python)
+   ((derived-mode-p 'ruby-mode 'enh-ruby-mode) 'ruby)
+   ((derived-mode-p 'rust-mode) 'rust)
+   ((derived-mode-p 'typescript-mode) 'typescript)))
 
 (defun yeast-parse ()
   "Parse the buffer from scratch."
@@ -74,15 +93,12 @@ If ANON is nil, only use the named nodes."
   "Structural editing support."
   nil nil nil
   (if yeast-mode
-      (let ((lang (catch 'found
-                    (dolist (elt yeast-modes)
-                      (when (derived-mode-p (car elt)) (throw 'found (cdr elt)))))))
-        (if lang
-            (progn
-              (setq-local yeast--instance (yeast--make-instance lang))
-              (yeast-parse))
-          (user-error "Yeast does not support this major mode")
-          (setq-local yeast-mode nil)))
+      (if-let ((lang (yeast-detect-language)))
+          (progn
+            (setq-local yeast--instance (yeast--make-instance lang))
+            (yeast-parse))
+        (user-error "Yeast does not support this major mode")
+        (setq-local yeast-mode nil))
     (setq-local yeast--instance nil)))
 
 (provide 'yeast)
