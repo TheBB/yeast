@@ -6,8 +6,8 @@
 #define INTERFACE_H
 
 extern emacs_value em_nil, em_t;
-extern emacs_value em_stringp, em_symbolp;
-extern emacs_value em_yeast_instance_p;
+extern emacs_value em_integerp, em_stringp, em_symbolp;
+extern emacs_value em_yeast_instance_p, em_yeast_tree_p, em_yeast_node_p;
 
 extern emacs_value em_unknown_language;
 
@@ -28,6 +28,13 @@ void em_init(emacs_env *env);
  * @return True iff an error was signaled.
  */
 bool em_assert_type(emacs_env *env, emacs_value predicate, emacs_value arg);
+
+/**
+ * Signal a generic error with string message.
+ * @param env The active Emacs environment.
+ * @param message The error message to send.
+ */
+void em_signal_error(emacs_env *env, const char *message);
 
 /**
  * Signal a wrong-type-argument error.

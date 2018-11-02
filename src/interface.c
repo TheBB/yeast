@@ -11,8 +11,8 @@
 // We store some global references to emacs objects, mostly symbols,
 // so that we don't have to waste time calling intern later on.
 emacs_value em_nil, em_t;
-emacs_value em_stringp, em_symbolp;
-emacs_value em_yeast_instance_p;
+emacs_value em_integerp, em_stringp, em_symbolp;
+emacs_value em_yeast_instance_p, em_yeast_tree_p, em_yeast_node_p;
 
 // Error symbols
 emacs_value em_unknown_language;
@@ -23,17 +23,20 @@ emacs_value em_bash, em_c, em_cpp, em_css, em_go, em_html, em_javascript,
 
 // Symbols that are only reachable from within this file.
 static emacs_value _buffer_size, _buffer_substring, _cons, _defalias,
-    _provide, _user_ptrp, _wrong_type_argument;
+    _error, _provide, _user_ptrp, _wrong_type_argument;
 
 void em_init(emacs_env *env)
 {
     em_nil = GLOBREF(INTERN("nil"));
     em_t = GLOBREF(INTERN("t"));
 
+    em_integerp = GLOBREF(INTERN("integerp"));
     em_stringp = GLOBREF(INTERN("stringp"));
     em_symbolp = GLOBREF(INTERN("symbolp"));
 
     em_yeast_instance_p = GLOBREF(INTERN("yeast-instance-p"));
+    em_yeast_tree_p = GLOBREF(INTERN("yeast-tree-p"));
+    em_yeast_node_p = GLOBREF(INTERN("yeast-node-p"));
 
     em_unknown_language = GLOBREF(INTERN("unknown-language"));
 
@@ -56,6 +59,7 @@ void em_init(emacs_env *env)
     _buffer_substring = GLOBREF(INTERN("buffer-substring"));
     _cons = GLOBREF(INTERN("cons"));
     _defalias = GLOBREF(INTERN("defalias"));
+    _error = GLOBREF(INTERN("error"));
     _provide = GLOBREF(INTERN("provide"));
     _user_ptrp = GLOBREF(INTERN("user-ptrp"));
     _wrong_type_argument = GLOBREF(INTERN("wrong-type-argument"));
@@ -87,6 +91,11 @@ bool em_assert_type(emacs_env *env, emacs_value predicate, emacs_value arg)
     if (!cond)
         em_signal_wrong_type(env, predicate, arg);
     return cond;
+}
+
+void em_signal_error(emacs_env *env, const char *message)
+{
+    env->non_local_exit_signal(env, _error, env->make_string(env, message, strlen(message)));
 }
 
 void em_signal_wrong_type(emacs_env *env, emacs_value expected, emacs_value actual)

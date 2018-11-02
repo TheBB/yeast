@@ -35,10 +35,27 @@
     do { if (!em_assert_type(env, em_stringp, (val))) return em_nil; } while (0)
 
 /**
+ * Assert that VAL is an integer, signal an error and return otherwise.
+ */
+#define YEAST_ASSERT_INTEGER(val)                                       \
+    do { if (!em_assert_type(env, em_integerp, (val))) return em_nil; } while (0)
+
+/**
+ * Extract a boolean from an emacs_value.
+ */
+#define YEAST_EXTRACT_BOOLEAN(val) (env->is_not_nil(env, (val)) ? 1 : 0)
+
+/**
  * Extract a string from an emacs_value.
  * Caller is reponsible for ensuring that the emacs_value represents a string.
  */
 #define YEAST_EXTRACT_STRING(val) em_get_string(env, (val));
+
+/**
+ * Extract a string from an emacs_value.
+ * Caller is reponsible for ensuring that the emacs_value represents a string.
+ */
+#define YEAST_EXTRACT_INTEGER(val) (env->extract_integer(env, (val)));
 
 /**
  * Assert that VAL is an instance, signal an error and return otherwise.
@@ -47,16 +64,40 @@
     do { if (!yeast_assert_type(env, (val), YEAST_INSTANCE, em_yeast_instance_p)) return em_nil; } while (0)
 
 /**
- * Extract a yeast object from an emacs_value.
+ * Assert that VAL is a tree, signal an error and return otherwise.
+ */
+#define YEAST_ASSERT_TREE(val)                                          \
+    do { if (!yeast_assert_type(env, (val), YEAST_TREE, em_yeast_tree_p)) return em_nil; } while (0)
+
+/**
+ * Assert that VAL is a tree, signal an error and return otherwise.
+ */
+#define YEAST_ASSERT_NODE(val)                                          \
+    do { if (!yeast_assert_type(env, (val), YEAST_NODE, em_yeast_node_p)) return em_nil; } while (0)
+
+/**
+ * Extract a yeast instance from an emacs_value.
  */
 #define YEAST_EXTRACT_INSTANCE(val) ((yeast_instance*) env->get_user_ptr(env, (val)))
+
+/**
+ * Extract a yeast tree from an emacs_value.
+ */
+#define YEAST_EXTRACT_TREE(val) ((yeast_tree*) env->get_user_ptr(env, (val)))
+
+/**
+ * Extract a yeast node from an emacs_value.
+ */
+#define YEAST_EXTRACT_NODE(val) ((yeast_node*) env->get_user_ptr(env, (val)))
 
 /**
  * Enum used to distinguish between various types of objects exposed.
  */
 typedef enum {
     YEAST_UNKNOWN,
-    YEAST_INSTANCE
+    YEAST_INSTANCE,
+    YEAST_TREE,
+    YEAST_NODE
 } yeast_type;
 
 /**
@@ -75,6 +116,24 @@ typedef struct {
     TSParser *parser;
     TSTree *tree;
 } yeast_instance;
+
+/**
+ * Yeast tree.
+ */
+typedef struct {
+    yeast_header header;
+    yeast_instance *instance;
+    TSTree *tree;
+} yeast_tree;
+
+/**
+ * Yeast node.
+ */
+typedef struct {
+    yeast_header header;
+    yeast_tree *tree;
+    TSNode node;
+} yeast_node;
 
 /**
  * Return the yeast object type stored by en Emacs value.

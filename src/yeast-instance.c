@@ -1,6 +1,3 @@
-#include <string.h>
-#include <stdio.h>
-
 #include "tree_sitter/runtime.h"
 
 #include "interface.h"
@@ -86,7 +83,6 @@ typedef struct {
 static const char *read(void *_payload, uint32_t offset, TSPoint position, uint32_t *bytes_read)
 {
     read_payload *payload = (read_payload*)_payload;
-    printf("Offset %d, buffer size %d\n", offset, payload->size);
 
     // Calculate how many bytes to read
     *bytes_read = payload->size - offset;

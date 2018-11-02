@@ -5,6 +5,7 @@
 
 #include "interface.h"
 #include "yeast-instance.h"
+#include "yeast-traversal.h"
 #include "yeast.h"
 
 yeast_type yeast_get_type(emacs_env *env, emacs_value _obj)
@@ -37,10 +38,27 @@ void yeast_finalize(void *_obj)
             free(instance);
         }
     }
+    else if (header->type == YEAST_TREE) {
+        header->refcount--;
+        if (header->refcount <= 0) {
+            yeast_tree *tree = (yeast_tree*) _obj;
+            ts_tree_delete(tree->tree);
+            yeast_instance *instance = tree->instance;
+            free(tree);
+            yeast_finalize(instance);
+        }
+    }
+    else if (header->type == YEAST_NODE) {
+        // Nodes are not reference counted
+        yeast_node *node = (yeast_node*) _obj;
+        yeast_finalize(node->tree);
+        free(node);
+    }
 }
 
 typedef emacs_value (*func_1)(emacs_env*, emacs_value);
 typedef emacs_value (*func_2)(emacs_env*, emacs_value, emacs_value);
+typedef emacs_value (*func_3)(emacs_env*, emacs_value, emacs_value, emacs_value);
 
 #define GET_SAFE(arglist, nargs, index) ((index) < (nargs) ? (arglist)[(index)] : em_nil)
 
@@ -56,6 +74,12 @@ static emacs_value yeast_dispatch_2(emacs_env *env, ptrdiff_t nargs, emacs_value
     return func(env, GET_SAFE(args, nargs, 0), GET_SAFE(args, nargs, 1));
 }
 
+static emacs_value yeast_dispatch_3(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data)
+{
+    func_3 func = (func_3) data;
+    return func(env, GET_SAFE(args, nargs, 0), GET_SAFE(args, nargs, 1), GET_SAFE(args, nargs, 2));
+}
+
 #define DEFUN(ename, cname, min_nargs, max_nargs)                       \
     em_defun(env, (ename),                                              \
              env->make_function(                                        \
@@ -66,8 +90,16 @@ static emacs_value yeast_dispatch_2(emacs_env *env, ptrdiff_t nargs, emacs_value
 
 void yeast_init(emacs_env *env)
 {
-    DEFUN("yeast--make-instance", make_instance, 1, 1);
     DEFUN("yeast-instance-p", instance_p, 1, 1);
+    DEFUN("yeast-tree-p", tree_p, 1, 1);
+    DEFUN("yeast-node-p", node_p, 1, 1);
 
+    DEFUN("yeast--make-instance", make_instance, 1, 1);
     DEFUN("yeast--parse", parse, 1, 1);
+
+    DEFUN("yeast--instance-tree", instance_tree, 1, 1);
+    DEFUN("yeast--tree-root", tree_root, 1, 1);
+    DEFUN("yeast--node-type", node_type, 1, 1);
+    DEFUN("yeast--node-child-count", node_child_count, 1, 2);
+    DEFUN("yeast--node-child", node_child, 2, 3);
 }
