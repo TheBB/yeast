@@ -125,7 +125,7 @@ emacs_value yeast_node_start_byte(emacs_env *env, emacs_value _node)
 {
     YEAST_ASSERT_NODE(_node);
     yeast_node *node = YEAST_EXTRACT_NODE(_node);
-    return env->make_integer(env, ts_node_start_byte(node->node));
+    return env->make_integer(env, 1 + ts_node_start_byte(node->node));
 }
 
 YEAST_DOC(node_end_byte, "NODE", "Get the ending byte of NODE.");
@@ -143,7 +143,7 @@ emacs_value yeast_node_byte_range(emacs_env *env, emacs_value _node)
     yeast_node *node = YEAST_EXTRACT_NODE(_node);
     return em_cons(
         env,
-        env->make_integer(env, ts_node_start_byte(node->node)),
+        env->make_integer(env, 1 + ts_node_start_byte(node->node)),
         env->make_integer(env, ts_node_end_byte(node->node))
     );
 }
@@ -160,7 +160,7 @@ emacs_value yeast_node_child_for_byte(emacs_env *env, emacs_value _node, emacs_v
     uint32_t byte = YEAST_EXTRACT_INTEGER(_byte);
     bool anon = YEAST_EXTRACT_BOOLEAN(_anon);
 
-    TSNode child = anon ? ts_node_first_child_for_byte(node->node, byte) :
-                   ts_node_first_named_child_for_byte(node->node, byte);
+    TSNode child = anon ? ts_node_first_child_for_byte(node->node, byte - 1) :
+                   ts_node_first_named_child_for_byte(node->node, byte - 1);
     return new_node_from_node(env, node, child);
 }
