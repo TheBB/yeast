@@ -147,3 +147,20 @@ emacs_value yeast_node_byte_range(emacs_env *env, emacs_value _node)
         env->make_integer(env, ts_node_end_byte(node->node))
     );
 }
+
+YEAST_DOC(node_child_for_byte, "NODE BYTE &optional ANON",
+          "Get the first child of NODE for BYTE.\n\n"
+          "If ANON is nil, count only the named children.");
+emacs_value yeast_node_child_for_byte(emacs_env *env, emacs_value _node, emacs_value _byte, emacs_value _anon)
+{
+    YEAST_ASSERT_NODE(_node);
+    YEAST_ASSERT_INTEGER(_byte);
+
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+    uint32_t byte = YEAST_EXTRACT_INTEGER(_byte);
+    bool anon = YEAST_EXTRACT_BOOLEAN(_anon);
+
+    TSNode child = anon ? ts_node_first_child_for_byte(node->node, byte) :
+                   ts_node_first_named_child_for_byte(node->node, byte);
+    return new_node_from_node(env, node, child);
+}
