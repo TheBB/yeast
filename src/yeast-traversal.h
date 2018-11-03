@@ -5,6 +5,7 @@
 
 YEAST_DEFUN(tree_p, emacs_value obj);
 YEAST_DEFUN(node_p, emacs_value obj);
+YEAST_DEFUN(node_eq, emacs_value _obj1, emacs_value _obj2);
 
 YEAST_DEFUN(instance_tree, emacs_value _instance);
 YEAST_DEFUN(tree_root, emacs_value _tree);

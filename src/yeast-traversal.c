@@ -35,6 +35,20 @@ emacs_value yeast_node_p(emacs_env *env, emacs_value obj)
     return type == YEAST_NODE ? em_t : em_nil;
 }
 
+YEAST_DOC(node_eq, "OBJ1 OBJ2", "Return non-nil if OBJ1 and OBJ2 are the same node.");
+emacs_value yeast_node_eq(emacs_env *env, emacs_value _obj1, emacs_value _obj2)
+{
+    if (!YEAST_EXTRACT_BOOLEAN(_obj1))
+        return em_nil;
+    if (!YEAST_EXTRACT_BOOLEAN(_obj2))
+        return em_nil;
+    YEAST_ASSERT_NODE(_obj1);
+    YEAST_ASSERT_NODE(_obj2);
+    yeast_node *node1 = YEAST_EXTRACT_NODE(_obj1);
+    yeast_node *node2 = YEAST_EXTRACT_NODE(_obj2);
+    return ts_node_eq(node1->node, node2->node) ? em_t : em_nil;
+}
+
 YEAST_DOC(instance_tree, "INSTANCE", "Get the current tree in INSTANCE.");
 emacs_value yeast_instance_tree(emacs_env *env, emacs_value _instance)
 {
