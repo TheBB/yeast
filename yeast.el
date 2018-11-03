@@ -27,6 +27,9 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
+
 ;;; Loading logic
 
 ;; TODO: Improve after fix for Emacs bug #33231 is pulled
@@ -115,7 +118,7 @@ If ANON is nil, only use the named nodes."
   (let* ((node (or node (yeast-root-node)))
          (children (yeast-node-children node anon)))
     `(,(yeast--node-type node)
-      ,@(mapcar (lambda (node) (yeast-ast-sexp node anon)) children))))
+      ,@(cl-loop for node in children collect (yeast-ast-sexp node anon)))))
 
 
 ;;; Tree display
@@ -128,8 +131,8 @@ If ANON is nil, only use named nodes."
   (widget-convert 'tree-widget
                   :tag (symbol-name (yeast--node-type node))
                   :open t
-                  :args (mapcar (lambda (node) (yeast--tree-widget node anon))
-                                (yeast-node-children node))))
+                  :args (cl-loop for node in (yeast-node-children node)
+                                 collect (yeast--tree-widget node anon))))
 
 (defun yeast-show-ast (&optional anon)
   "Show the AST in a separate buffer.
