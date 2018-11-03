@@ -27,6 +27,10 @@
 
 ;;; Code:
 
+;;; Loading logic
+
+;; TODO: Improve after fix for Emacs bug #33231 is pulled
+
 (defvar libyeast--root
   (file-name-directory (or load-file-name buffer-file-name)))
 
@@ -38,6 +42,9 @@
 
 (unless (featurep 'libyeast)
   (load-file libyeast--module-file))
+
+
+;;; Yeast minor mode
 
 (defvar-local yeast--instance nil
   "The yeast instance of the current buffer.")
@@ -78,6 +85,22 @@
   "Get the current root node."
   (yeast--tree-root (yeast--instance-tree yeast--instance)))
 
+;;;###autoload
+(define-minor-mode yeast-mode
+  "Structural editing support."
+  nil nil nil
+  (if yeast-mode
+      (if-let ((lang (yeast-detect-language)))
+          (progn
+            (setq-local yeast--instance (yeast--make-instance lang))
+            (yeast-parse))
+        (user-error "Yeast does not support this major mode")
+        (setq-local yeast-mode nil))
+    (setq-local yeast--instance nil)))
+
+
+;;; Convenience functionality
+
 (defun yeast-node-children (node &optional anon)
   "Get the children of NODE.
 If ANON is nil, get only the named children."
@@ -93,6 +116,9 @@ If ANON is nil, only use the named nodes."
          (children (yeast-node-children node anon)))
     `(,(yeast--node-type node)
       ,@(mapcar (lambda (node) (yeast-ast-sexp node anon)) children))))
+
+
+;;; Tree display
 
 (defun yeast--tree-widget (node &optional anon)
   "Convert NODE to a tree widget.
@@ -118,19 +144,6 @@ If ANON is nil, only use the named nodes."
         (widget-create widget)
         (goto-char (point-min))))
     (switch-to-buffer-other-window buffer)))
-
-;;;###autoload
-(define-minor-mode yeast-mode
-  "Structural editing support."
-  nil nil nil
-  (if yeast-mode
-      (if-let ((lang (yeast-detect-language)))
-          (progn
-            (setq-local yeast--instance (yeast--make-instance lang))
-            (yeast-parse))
-        (user-error "Yeast does not support this major mode")
-        (setq-local yeast-mode nil))
-    (setq-local yeast--instance nil)))
 
 (provide 'yeast)
 
