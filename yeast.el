@@ -78,15 +78,46 @@
   "Get the current root node."
   (yeast--tree-root (yeast--instance-tree yeast--instance)))
 
+(defun yeast-node-children (node &optional anon)
+  "Get the children of NODE.
+If ANON is nil, get only the named children."
+  (when node
+    (let ((nchildren (yeast--node-child-count node)))
+      (cl-loop for i below nchildren collect (yeast--node-child node i anon)))))
+
 (defun yeast-ast-sexp (&optional node anon)
   "Convert NODE to an s-expression.
 If NODE is nil, use the current root node.
 If ANON is nil, only use the named nodes."
   (let* ((node (or node (yeast-root-node)))
-         (nchildren (yeast--node-child-count node anon))
-         (children (cl-loop for i below nchildren collect (yeast--node-child node i anon))))
+         (children (yeast-node-children node anon)))
     `(,(yeast--node-type node)
       ,@(mapcar (lambda (node) (yeast-ast-sexp node anon)) children))))
+
+(defun yeast--tree-widget (node &optional anon)
+  "Convert NODE to a tree widget.
+If ANON is nil, only use named nodes."
+  (require 'wid-edit)
+  (require 'tree-widget)
+  (widget-convert 'tree-widget
+                  :tag (symbol-name (yeast--node-type node))
+                  :open t
+                  :args (mapcar (lambda (node) (yeast--tree-widget node anon))
+                                (yeast-node-children node))))
+
+(defun yeast-show-ast (&optional anon)
+  "Show the AST in a separate buffer.
+If ANON is nil, only use the named nodes."
+  (interactive "P")
+  (let ((buffer (generate-new-buffer "*yeast-tree*"))
+        (widget (yeast--tree-widget (yeast-root-node))))
+    (with-current-buffer buffer
+      (setq-local buffer-read-only t)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (widget-create widget)
+        (goto-char (point-min))))
+    (switch-to-buffer-other-window buffer)))
 
 ;;;###autoload
 (define-minor-mode yeast-mode
