@@ -88,10 +88,14 @@
   "Get the current root node."
   (yeast--tree-root (yeast--instance-tree yeast--instance)))
 
+(defvar yeast-mode-map
+  (make-sparse-keymap)
+  "Keymap for yeast-mode.")
+
 ;;;###autoload
 (define-minor-mode yeast-mode
   "Structural editing support."
-  nil nil nil
+  nil nil yeast-mode-map
   (if yeast-mode
       (if-let ((lang (yeast-detect-language)))
           (progn
