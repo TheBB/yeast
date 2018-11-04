@@ -104,6 +104,32 @@
 
 ;;; Convenience functionality
 
+(defun yeast--node-at-point (point mark)
+  (unless mark-active
+    (setq mark point))
+  (let ((point-byte (position-bytes point))
+        (mark-byte (position-bytes mark))
+        (node (yeast-root-node))
+        prev-node)
+    (while (not (null node))
+      (let* ((node-point (yeast--node-child-for-byte node point-byte))
+             (node-mark (yeast--node-child-for-byte node mark-byte))
+             (byte-range (and node-point (yeast--node-byte-range node-point))))
+        (setq prev-node node
+              node (and (yeast-node-eq node-point node-mark)
+                   (>= (min point-byte mark-byte) (car byte-range))
+                   (<= (max point-byte mark-byte) (cdr byte-range))
+                   node-point))))
+    prev-node))
+
+(defun yeast-select-node-at-point (point mark)
+  (interactive (list (point) (or (mark) (point))))
+  (let* ((node (yeast--node-at-point point mark))
+         (byte-range (yeast--node-byte-range node)))
+    (goto-char (byte-to-position (car byte-range)))
+    (set-mark-command nil)
+    (goto-char (byte-to-position (cdr byte-range)))))
+
 (defun yeast-node-children (node &optional anon)
   "Get the children of NODE.
 If ANON is nil, get only the named children."
