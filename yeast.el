@@ -47,6 +47,31 @@
   (load-file libyeast--module-file))
 
 
+;;; Tracking changes
+
+(defvar-local yeast--before-change-data nil)
+
+(defun yeast--before-change (beg end)
+  (setq-local yeast--before-change-data
+              (cons beg (buffer-substring-no-properties beg end))))
+
+(defun yeast--after-change (beg end len)
+  (let* ((pre-beg (car yeast--before-change-data))
+         (pre-str (cdr yeast--before-change-data))
+         (i1 (- beg pre-beg))
+         (i2 (+ i1 len))
+         (nbytes (string-bytes (substring pre-str i1 i2))))
+    (setq yeast--before-change-data
+          (cons pre-beg
+                (concat (substring pre-str 0 i1)
+                        (buffer-substring-no-properties beg end)
+                        (substring pre-str i2))))
+    (yeast--edit yeast--instance
+                 (1- (position-bytes beg))
+                 (1- (position-bytes end))
+                 nbytes)))
+
+
 ;;; Yeast minor mode
 
 (defvar-local yeast--instance nil
@@ -88,6 +113,9 @@
   "Get the current root node."
   (yeast--tree-root (yeast--instance-tree yeast--instance)))
 
+(defun yeast-edit (beg end length)
+  (yeast--edit yeast--instance beg end length))
+
 (defvar yeast-mode-map
   (make-sparse-keymap)
   "Keymap for yeast-mode.")
@@ -100,9 +128,13 @@
       (if-let ((lang (yeast-detect-language)))
           (progn
             (setq-local yeast--instance (yeast--make-instance lang))
-            (yeast-parse))
+            (yeast-parse)
+            (add-hook 'before-change-functions 'yeast--before-change nil t)
+            (add-hook 'after-change-functions 'yeast--after-change nil t))
         (user-error "Yeast does not support this major mode")
         (setq-local yeast-mode nil))
+    (remove-hook 'before-change-functions 'yeast--before-change t)
+    (remove-hook 'after-change-functions 'yeast--after-change t)
     (setq-local yeast--instance nil)))
 
 

@@ -103,6 +103,25 @@ static const char *read(void *_payload, uint32_t offset, TSPoint position, uint3
     return &payload->buffer[0];
 }
 
+static emacs_value reparse(emacs_env *env, yeast_instance *instance)
+{
+    read_payload payload;
+    payload.env = env;
+    payload.size = em_buffer_size(env);
+    payload.success = true;
+
+    TSInput input = {&payload, read, TSInputEncodingUTF8};
+    TSTree *new_tree = ts_parser_parse(instance->parser, instance->tree, input);
+
+    emacs_value retval = payload.success ? em_t : em_nil;
+
+    if (instance->tree)
+        ts_tree_delete(instance->tree);
+    instance->tree = new_tree;
+
+    return retval;
+}
+
 YEAST_DOC(parse, "INSTANCE",
           "Parse the current buffer, overriding the current tree in INSTANCE.\n\n"
           "Return non-nil if successful.");
@@ -110,21 +129,26 @@ emacs_value yeast_parse(emacs_env *env, emacs_value _instance)
 {
     YEAST_ASSERT_INSTANCE(_instance);
     yeast_instance *instance = YEAST_EXTRACT_INSTANCE(_instance);
+    return reparse(env, instance);
+}
 
-    read_payload *payload = malloc(sizeof(read_payload));
-    payload->env = env;
-    payload->size = em_buffer_size(env);
-    payload->success = true;
+YEAST_DOC(edit, "INSTANCE BEG END LEN", "");
+emacs_value yeast_edit(
+    emacs_env *env, emacs_value _instance,
+    emacs_value _beg, emacs_value _end, emacs_value _len)
+{
+    YEAST_ASSERT_INSTANCE(_instance);
+    YEAST_ASSERT_INTEGER(_beg);
+    YEAST_ASSERT_INTEGER(_end);
+    YEAST_ASSERT_INTEGER(_len);
 
-    TSInput input = {payload, read, TSInputEncodingUTF8};
-    TSTree *new_tree = ts_parser_parse(instance->parser, instance->tree, input);
+    yeast_instance *instance = YEAST_EXTRACT_INSTANCE(_instance);
+    uint32_t start = YEAST_EXTRACT_INTEGER(_beg);
+    uint32_t old_end = start + YEAST_EXTRACT_INTEGER(_len);
+    uint32_t new_end = YEAST_EXTRACT_INTEGER(_end);
 
-    emacs_value retval = payload->success ? em_t : em_nil;
-    free(payload);
+    TSInputEdit edit = {start, old_end, new_end, {0, 0}, {0, 0}};
+    ts_tree_edit(instance->tree, &edit);
 
-    if (instance->tree)
-        ts_tree_delete(instance->tree);
-    instance->tree = new_tree;
-
-    return retval;
+    return reparse(env, instance);
 }

@@ -59,6 +59,7 @@ void yeast_finalize(void *_obj)
 typedef emacs_value (*func_1)(emacs_env*, emacs_value);
 typedef emacs_value (*func_2)(emacs_env*, emacs_value, emacs_value);
 typedef emacs_value (*func_3)(emacs_env*, emacs_value, emacs_value, emacs_value);
+typedef emacs_value (*func_4)(emacs_env*, emacs_value, emacs_value, emacs_value, emacs_value);
 
 #define GET_SAFE(arglist, nargs, index) ((index) < (nargs) ? (arglist)[(index)] : em_nil)
 
@@ -80,6 +81,13 @@ static emacs_value yeast_dispatch_3(emacs_env *env, ptrdiff_t nargs, emacs_value
     return func(env, GET_SAFE(args, nargs, 0), GET_SAFE(args, nargs, 1), GET_SAFE(args, nargs, 2));
 }
 
+static emacs_value yeast_dispatch_4(emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data)
+{
+    func_4 func = (func_4) data;
+    return func(env, GET_SAFE(args, nargs, 0), GET_SAFE(args, nargs, 1),
+                GET_SAFE(args, nargs, 2), GET_SAFE(args, nargs, 3));
+}
+
 #define DEFUN(ename, cname, min_nargs, max_nargs)                       \
     em_defun(env, (ename),                                              \
              env->make_function(                                        \
@@ -97,6 +105,7 @@ void yeast_init(emacs_env *env)
 
     DEFUN("yeast--make-instance", make_instance, 1, 1);
     DEFUN("yeast--parse", parse, 1, 1);
+    DEFUN("yeast--edit", edit, 4, 4);
 
     DEFUN("yeast--instance-tree", instance_tree, 1, 1);
     DEFUN("yeast--tree-root", tree_root, 1, 1);
