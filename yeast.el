@@ -109,30 +109,35 @@
 ;;; Convenience functionality
 
 (defun yeast--node-at-point (point mark)
-  (unless mark-active
-    (setq mark point))
-  (let ((point-byte (position-bytes point))
-        (mark-byte (position-bytes mark))
-        (node (yeast-root-node))
-        prev-node)
+  (let* ((min-char (min point mark))
+         (max-char (max (1- (max point mark)) min-char))
+         (min-byte (position-bytes min-char))
+         (max-byte (position-bytes max-char))
+         (node (yeast-root-node))
+         prev-node)
+    ;; Descend until we find the youngest node containing the range
     (while (not (null node))
-      (let* ((node-point (yeast--node-child-for-byte node point-byte))
-             (node-mark (yeast--node-child-for-byte node mark-byte))
-             (byte-range (and node-point (yeast--node-byte-range node-point))))
+      (let* ((min-node (yeast--node-child-for-byte node min-byte))
+             (max-node (yeast--node-child-for-byte node max-byte))
+             (byte-range (and min-node (yeast--node-byte-range min-node))))
         (setq prev-node node
-              node (and (yeast-node-eq node-point node-mark)
-                   (>= (min point-byte mark-byte) (car byte-range))
-                   (<= (max point-byte mark-byte) (cdr byte-range))
-                   node-point))))
+              node (and (yeast-node-eq min-node max-node)
+                        (>= min-byte (car byte-range))
+                        (<= max-byte (cdr byte-range))
+                        min-node))))
+    ;; Ascend until we find the oldest node that is not wider than the youngest
+    (let ((parent (yeast--parent prev-node))
+          (range (yeast--node-byte-range prev-node)))
+      (while (and parent (equal range (yeast--node-byte-range parent)))
+        (setq prev-node parent
+              parent (yeast--parent prev-node))))
     prev-node))
 
-(defun yeast-select-node-at-point (point mark)
-  (interactive (list (point) (or (mark) (point))))
-  (let* ((node (yeast--node-at-point point mark))
-         (byte-range (yeast--node-byte-range node)))
-    (goto-char (byte-to-position (car byte-range)))
-    (set-mark-command nil)
-    (goto-char (byte-to-position (cdr byte-range)))))
+(defun yeast--select-node (node)
+  (when node
+    (let ((byte-range (yeast--node-byte-range node)))
+      (goto-char (byte-to-position (car byte-range)))
+      (set-mark (1+ (byte-to-position (cdr byte-range)))))))
 
 (defun yeast-node-children (node &optional anon)
   "Get the children of NODE.
@@ -151,6 +156,42 @@ If ANON is nil, only use the named nodes."
       ,@(cl-loop for node in children collect (yeast-ast-sexp node anon)))))
 
 
+;;; Traversal by selection
+
+(defun yeast-select-at-point (point mark)
+  (interactive (list (point) (if (use-region-p) (mark) (point))))
+  (yeast--select-node (yeast--node-at-point point mark)))
+
+(defun yeast-select-next-at-point (point mark)
+  (interactive (list (point) (if (use-region-p) (mark) (point))))
+  (let ((cur-node (yeast--node-at-point point mark)))
+    (yeast--select-node (yeast--next-sibling cur-node))))
+
+(defun yeast-select-prev-at-point (point mark)
+  (interactive (list (point) (if (use-region-p) (mark) (point))))
+  (let ((cur-node (yeast--node-at-point point mark)))
+    (yeast--select-node (yeast--prev-sibling cur-node))))
+
+(defun yeast-select-parent-at-point (point mark)
+  (interactive (list (point) (if (use-region-p) (mark) (point))))
+  (let* ((node (yeast--node-at-point point mark))
+         (range (yeast--node-byte-range node)))
+    ;; Get the closest ancestor with a wider byte range
+    (while (and node (equal range (yeast--node-byte-range node)))
+      (setq node (yeast--parent node)))
+    (yeast--select-node node)))
+
+(defun yeast-select-first-child-at-point (point mark)
+  (interactive (list (point) (if (use-region-p) (mark) (point))))
+  (let* ((node (yeast--node-at-point point mark))
+         (range (yeast--node-byte-range node)))
+    ;; Get the primary descendant with a narrower byte range
+    (while (and (equal range (yeast--node-byte-range node))
+                (< 0 (yeast--node-child-count node)))
+      (setq node (yeast--node-child node 0)))
+    (yeast--select-node node)))
+
+
 ;;; Tree display
 
 (defun yeast--tree-widget (node &optional anon)
@@ -159,7 +200,12 @@ If ANON is nil, only use named nodes."
   (require 'wid-edit)
   (require 'tree-widget)
   (widget-convert 'tree-widget
-                  :tag (symbol-name (yeast--node-type node))
+                  :tag (format "%s (%d - %d) (%d - %d)"
+                               (yeast--node-type node)
+                               (car (yeast--node-byte-range node))
+                               (cdr (yeast--node-byte-range node))
+                               (byte-to-position (car (yeast--node-byte-range node)))
+                               (byte-to-position (cdr (yeast--node-byte-range node))))
                   :open t
                   :args (cl-loop for node in (yeast-node-children node)
                                  collect (yeast--tree-widget node anon))))

@@ -164,3 +164,42 @@ emacs_value yeast_node_child_for_byte(emacs_env *env, emacs_value _node, emacs_v
                    ts_node_first_named_child_for_byte(node->node, byte - 1);
     return new_node_from_node(env, node, child);
 }
+
+YEAST_DOC(next_sibling, "NODE &optional ANON",
+          "Get the next sibling of NODE.\n\n"
+          "If ANON is nil, access only named siblings.");
+emacs_value yeast_next_sibling(emacs_env *env, emacs_value _node, emacs_value _anon)
+{
+    YEAST_ASSERT_NODE(_node);
+
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+    bool anon = YEAST_EXTRACT_BOOLEAN(_anon);
+
+    TSNode sibling = anon ? ts_node_next_sibling(node->node) : ts_node_next_named_sibling(node->node);
+    return new_node_from_node(env, node, sibling);
+}
+
+YEAST_DOC(prev_sibling, "NODE &optional ANON",
+          "Get the previous sibling of NODE.\n\n"
+          "If ANON is nil, access only named siblings.");
+emacs_value yeast_prev_sibling(emacs_env *env, emacs_value _node, emacs_value _anon)
+{
+    YEAST_ASSERT_NODE(_node);
+
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+    bool anon = YEAST_EXTRACT_BOOLEAN(_anon);
+
+    TSNode sibling = anon ? ts_node_prev_sibling(node->node) : ts_node_prev_named_sibling(node->node);
+    return new_node_from_node(env, node, sibling);
+}
+
+YEAST_DOC(parent, "NODE", "Get the parent of NODE.");
+emacs_value yeast_parent(emacs_env *env, emacs_value _node)
+{
+    YEAST_ASSERT_NODE(_node);
+
+    yeast_node *node = YEAST_EXTRACT_NODE(_node);
+
+    TSNode parent = ts_node_parent(node->node);
+    return new_node_from_node(env, node, parent);
+}

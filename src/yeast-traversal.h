@@ -18,4 +18,8 @@ YEAST_DEFUN(node_end_byte, emacs_value _node);
 YEAST_DEFUN(node_byte_range, emacs_value _node);
 YEAST_DEFUN(node_child_for_byte, emacs_value _node, emacs_value _byte, emacs_value _anon);
 
+YEAST_DEFUN(next_sibling, emacs_value _node, emacs_value _anon);
+YEAST_DEFUN(prev_sibling, emacs_value _node, emacs_value _anon);
+YEAST_DEFUN(parent, emacs_value _node);
+
 #endif /* YEAST_TRAVERSAL_H */
