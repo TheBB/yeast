@@ -7,40 +7,40 @@
 	url = https://github.com/tree-sitter/tree-sitter-json
 [submodule "external/python"]
 	path = external/python
-	url = git@github.com:tree-sitter/tree-sitter-python
+	url = https://github.com/tree-sitter/tree-sitter-python
 [submodule "external/bash"]
 	path = external/bash
-	url = git@github.com:tree-sitter/tree-sitter-bash
+	url = https://github.com/tree-sitter/tree-sitter-bash
 [submodule "external/c"]
 	path = external/c
-	url = git@github.com:tree-sitter/tree-sitter-c
+	url = https://github.com/tree-sitter/tree-sitter-c
 [submodule "external/cpp"]
 	path = external/cpp
-	url = git@github.com:tree-sitter/tree-sitter-cpp
+	url = https://github.com/tree-sitter/tree-sitter-cpp
 [submodule "external/css"]
 	path = external/css
-	url = git@github.com:tree-sitter/tree-sitter-css
+	url = https://github.com/tree-sitter/tree-sitter-css
 [submodule "external/go"]
 	path = external/go
-	url = git@github.com:tree-sitter/tree-sitter-go
+	url = https://github.com/tree-sitter/tree-sitter-go
 [submodule "external/html"]
 	path = external/html
-	url = git@github.com:tree-sitter/tree-sitter-html
+	url = https://github.com/tree-sitter/tree-sitter-html
 [submodule "external/javascript"]
 	path = external/javascript
-	url = git@github.com:tree-sitter/tree-sitter-javascript
+	url = https://github.com/tree-sitter/tree-sitter-javascript
 [submodule "external/ocaml"]
 	path = external/ocaml
-	url = git@github.com:tree-sitter/tree-sitter-ocaml
+	url = https://github.com/tree-sitter/tree-sitter-ocaml
 [submodule "external/php"]
 	path = external/php
-	url = git@github.com:tree-sitter/tree-sitter-php
+	url = https://github.com/tree-sitter/tree-sitter-php
 [submodule "external/ruby"]
 	path = external/ruby
-	url = git@github.com:tree-sitter/tree-sitter-ruby
+	url = https://github.com/tree-sitter/tree-sitter-ruby
 [submodule "external/rust"]
 	path = external/rust
-	url = git@github.com:tree-sitter/tree-sitter-rust
+	url = https://github.com/tree-sitter/tree-sitter-rust
 [submodule "external/typescript"]
 	path = external/typescript
-	url = git@github.com:tree-sitter/tree-sitter-typescript
+	url = https://github.com/tree-sitter/tree-sitter-typescript
