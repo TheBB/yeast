@@ -1,0 +1,33 @@
+language: generic
+sudo: required
+dist: xenial
+
+os:
+  - linux
+  - osx
+
+cache:
+  - directories:
+      - "$HOME/emacs"
+
+env:
+  global:
+    - PATH="$HOME/bin:$PATH"
+    - EMAKE_SHA1=e5159b57e895e08f47e1517b51141d4f9ee34842
+  matrix:
+    - EMACS_VERSION=25.3
+    - EMACS_VERSION=26.1
+    - EMACS_VERSION=snapshot
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS_VERSION=snapshot
+
+before_install:
+  - wget "https://raw.githubusercontent.com/vermiculus/emake.el/${EMAKE_SHA1}/emake.mk"
+  - make -f .travis.mk emacs
+
+script:
+  - make -f .travis.mk yeast
+  - make -f .travis.mk compile
