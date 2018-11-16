@@ -181,7 +181,7 @@
   "Get the children of NODE.
 If ANON is nil, get only the named children."
   (when node
-    (let ((nchildren (yeast--node-child-count node)))
+    (let ((nchildren (yeast--node-child-count node anon)))
       (cl-loop for i below nchildren collect (yeast--node-child node i anon)))))
 
 (defun yeast-ast-sexp (&optional node anon)
@@ -245,7 +245,7 @@ If ANON is nil, only use named nodes."
                                (byte-to-position (car (yeast--node-byte-range node)))
                                (byte-to-position (cdr (yeast--node-byte-range node))))
                   :open t
-                  :args (cl-loop for node in (yeast-node-children node)
+                  :args (cl-loop for node in (yeast-node-children node anon)
                                  collect (yeast--tree-widget node anon))))
 
 (defun yeast-show-ast (&optional anon)
@@ -253,7 +253,7 @@ If ANON is nil, only use named nodes."
 If ANON is nil, only use the named nodes."
   (interactive "P")
   (let ((buffer (generate-new-buffer "*yeast-tree*"))
-        (widget (yeast--tree-widget (yeast-root-node))))
+        (widget (yeast--tree-widget (yeast-root-node) anon)))
     (with-current-buffer buffer
       (setq-local buffer-read-only t)
       (let ((inhibit-read-only t))
