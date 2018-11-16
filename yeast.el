@@ -47,6 +47,35 @@
   (load-file libyeast--module-file))
 
 
+;;; Feed the byte compiler
+
+(defvar-local yeast--instance nil
+  "The yeast instance of the current buffer.")
+
+(defvar-local yeast--before-change-data nil)
+
+(declare-function yeast-node-eq "libyeast")
+(declare-function yeast--make-instance "libyeast")
+(declare-function yeast--parse "libyeast")
+(declare-function yeast--edit "libyeast")
+(declare-function yeast--instance-tree "libyeast")
+(declare-function yeast--tree-root "libyeast")
+(declare-function yeast--node-type "libyeast")
+(declare-function yeast--node-child-count "libyeast")
+(declare-function yeast--node-child "libyeast")
+(declare-function yeast--node-start-byte "libyeast")
+(declare-function yeast--node-end-byte "libyeast")
+(declare-function yeast--node-byte-range "libyeast")
+(declare-function yeast--node-child-for-byte "libyeast")
+(declare-function yeast--next-sibling "libyeast")
+(declare-function yeast--prev-sibling "libyeast")
+(declare-function yeast--parent "libyeast")
+
+(defvar sh-shell)
+(defvar web-mode-engine)
+(declare-function widget-convert "wid-edit")
+
+
 ;;; Utility macros
 
 (defmacro yeast-with-unibyte (&rest body)
@@ -60,8 +89,6 @@
 
 
 ;;; Tracking changes
-
-(defvar-local yeast--before-change-data nil)
 
 (defun yeast--before-change (beg end)
   (setq-local yeast--before-change-data
@@ -86,9 +113,6 @@
 
 
 ;;; Yeast minor mode
-
-(defvar-local yeast--instance nil
-  "The yeast instance of the current buffer.")
 
 (defun yeast-detect-language ()
   "Detect a supported language in the current buffer."
@@ -253,7 +277,7 @@ If ANON is nil, only use named nodes."
 If ANON is nil, only use the named nodes."
   (interactive "P")
   (let ((buffer (generate-new-buffer "*yeast-tree*"))
-        (widget (yeast--tree-widget (yeast-root-node))))
+        (widget (yeast--tree-widget (yeast-root-node) anon)))
     (with-current-buffer buffer
       (setq-local buffer-read-only t)
       (let ((inhibit-read-only t))
