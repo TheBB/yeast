@@ -132,7 +132,10 @@ emacs_value yeast_parse(emacs_env *env, emacs_value _instance)
     return reparse(env, instance);
 }
 
-YEAST_DOC(edit, "INSTANCE BEG END LEN", "");
+YEAST_DOC(edit, "INSTANCE BEG END LEN",
+          "Re-parse the current buffer, overriding the current tree in INSTANCE.\n\n"
+          "BEG END and LEN are zero-based byte indexes of the recent change,\n"
+          "corresponding to `after-change-functions'.");
 emacs_value yeast_edit(
     emacs_env *env, emacs_value _instance,
     emacs_value _beg, emacs_value _end, emacs_value _len)

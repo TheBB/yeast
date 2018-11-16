@@ -47,6 +47,18 @@
   (load-file libyeast--module-file))
 
 
+;;; Utility macros
+
+(defmacro yeast-with-unibyte (&rest body)
+  (declare (indent 0))
+  `(let ((inhibit-redisplay t)
+         (multibyte enable-multibyte-characters))
+     (set-buffer-multibyte nil)
+     (unwind-protect
+         (progn ,@body)
+       (set-buffer-multibyte multibyte))))
+
+
 ;;; Tracking changes
 
 (defvar-local yeast--before-change-data nil)
@@ -66,10 +78,11 @@
                 (concat (substring pre-str 0 i1)
                         (buffer-substring-no-properties beg end)
                         (substring pre-str i2))))
-    (yeast--edit yeast--instance
-                 (1- (position-bytes beg))
-                 (1- (position-bytes end))
-                 nbytes)))
+    (yeast-with-unibyte
+      (yeast--edit yeast--instance
+                   (1- (position-bytes beg))
+                   (1- (position-bytes end))
+                   nbytes))))
 
 
 ;;; Yeast minor mode
@@ -102,19 +115,12 @@
 
 (defun yeast-parse ()
   "Parse the buffer from scratch."
-  (let ((inhibit-redisplay t)
-        (multibyte enable-multibyte-characters))
-    (set-buffer-multibyte nil)
-    (unwind-protect
-        (yeast--parse yeast--instance)
-      (set-buffer-multibyte multibyte))))
+  (yeast-with-unibyte
+    (yeast--parse yeast--instance)))
 
 (defun yeast-root-node ()
   "Get the current root node."
   (yeast--tree-root (yeast--instance-tree yeast--instance)))
-
-(defun yeast-edit (beg end length)
-  (yeast--edit yeast--instance beg end length))
 
 (defvar yeast-mode-map
   (make-sparse-keymap)
