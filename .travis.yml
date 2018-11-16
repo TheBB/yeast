@@ -13,7 +13,7 @@ cache:
 env:
   global:
     - PATH="$HOME/bin:$PATH"
-    - EMAKE_SHA1=e5159b57e895e08f47e1517b51141d4f9ee34842
+    - EMAKE_SHA1=1b23379eb5a9f82d3e2d227d0f217864e40f23e0
   matrix:
     - EMACS_VERSION=25.3
     - EMACS_VERSION=26.1
@@ -26,8 +26,8 @@ matrix:
 
 before_install:
   - wget "https://raw.githubusercontent.com/vermiculus/emake.el/${EMAKE_SHA1}/emake.mk"
-  - make -f .travis.mk emacs
+  - make emacs
 
 script:
-  - make -f .travis.mk yeast
-  - make -f .travis.mk compile
+  - make yeast
+  - make compile
