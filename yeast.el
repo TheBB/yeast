@@ -51,12 +51,14 @@
 
 (defmacro yeast-with-unibyte (&rest body)
   (declare (indent 0))
-  `(let ((inhibit-redisplay t)
-         (multibyte enable-multibyte-characters))
-     (set-buffer-multibyte nil)
-     (unwind-protect
-         (progn ,@body)
-       (set-buffer-multibyte multibyte))))
+  `(save-restriction
+     (widen)
+     (let ((inhibit-redisplay t)
+           (multibyte enable-multibyte-characters))
+       (set-buffer-multibyte nil)
+       (unwind-protect
+           (progn ,@body)
+         (set-buffer-multibyte multibyte)))))
 
 
 ;;; Tracking changes
