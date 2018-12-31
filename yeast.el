@@ -115,8 +115,9 @@
 
 (defun yeast-parse ()
   "Parse the buffer from scratch."
-  (yeast-with-unibyte
-    (yeast--parse yeast--instance)))
+  (when yeast--instance
+    (yeast-with-unibyte
+      (yeast--parse yeast--instance))))
 
 (defun yeast-root-node ()
   "Get the current root node."
